@@ -71,6 +71,13 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     public static final String NPM_NAME = "traceur";
 
     /**
+     * Regexp pattern to display Traceur compilation errors in a clean manner.
+     */
+    public static final Pattern TRACEUR_COMPILATION_ERROR = Pattern.compile("\\[Error: (.*):" +
+            "([0-9]*):([0-9]*):(.*)");
+    public static final String ERROR_TITLE = "EcmaScript 6 Compilation Error";
+
+    /**
      * The most current release version of Traceur.
      */
     @Parameter(defaultValue = "0.0.49")
@@ -135,16 +142,11 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
             if (!Strings.isNullOrEmpty(npm.getLastErrorStream())) {
                 throw build(npm.getLastErrorStream(), input);
             } else {
-                throw new WatchingException("EcmaScript 6 Compilation Error",
+                throw new WatchingException(ERROR_TITLE,
                         "Error while compiling " + input.getAbsolutePath(), input, e);
             }
         }
     }
-
-    /**
-     * Regexp pattern to display Traceur compilation errors in a clean manner.
-     */
-    public static Pattern TRACEUR_COMPILATION_ERROR = Pattern.compile("\\[Error: (.*):([0-9]*):([0-9]*):(.*)");
 
     /**
      * Builds the WatchingException by searching the error msg, invoked during the compilation of
@@ -168,15 +170,15 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
             String line = matcher.group(2);
             String character = matcher.group(3);
             String reason = matcher.group(4).trim();
-            return new WatchingException("EcmaScript 6 Compilation Error", reason, source,
+            return new WatchingException(ERROR_TITLE, reason, source,
                     Integer.valueOf(line), Integer.valueOf(character), null);
         } else {
-            return new WatchingException("EcmaScript 6 Compilation Error", message, source, null);
+            return new WatchingException(ERROR_TITLE, message, source, null);
         }
     }
 
     /**
-     * Checks to make sure the input file is the acceptable type .js
+     * Checks to make sure the input file is the acceptable type .js.
      *
      * @param file is the file.
      * @return true if the file is js, otherwise false.
