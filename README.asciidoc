@@ -1,0 +1,73 @@
+= EcmaScript 6 support for Wisdom (using Traceur)
+
+== Description
+
+Traceur((https://github.com/google/traceur-compiler) is a JavaScript.next-to-JavaScript-of-today
+ compiler that allows you to use features from the future today. Traceur's goal is to inform the
+ design of new JavaScript features which are only valuable if they allow you to write better code
+ . Traceur allows you to try out new and proposed language features today, helping you say what
+ you mean in your code while informing the standards process.
+
+The Wisdom Traceur extension generates valid EcmaScript 5 (in other words, regular JavaScript) from
+EcmaScript 6 by relying on Traceur. It supports the _watch_ mode, so every modification triggers
+the file to be recompiled.
+
+== Installation
+
+Traceur support is a build-process extension. In the +plugins+ section of your application
++pom.xml+ file add:
+----
+<plugin>
+    <groupId>org.wisdom-framework</groupId>
+    <artifactId>wisdom-traceur-maven-plugin</artifactId>
+    <version>${project.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>compile-es6</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+The plugin generates a valid JavaScript 5 document for JavaScript files (ending with `.js`)
+contained in the:
+
+1. src/main/resources/assets directory
+2. src/main/assets directory
+
+It supports the _watch_ mode, so any change to a file is immediately processed and the file
+re-compiled.
+
+However, to be used successfully, you need to disable the Google Closure compilation:
+----
+<plugin>
+    <groupId>org.wisdom-framework</groupId>
+    <artifactId>wisdom-maven-plugin</artifactId>
+    <version>${wisdom.version}</version>
+    <extension>true</extension>
+    <configuration>
+        <skipGoogleClosure>true</skipGoogleClosure>
+    </configuration>
+</plugin>
+----
+
+
+== Usages
+
+Using the plugin is very simple, just create +.js+ file using EcmaScript 6 in
++src/main/resources/assets+ or +/src/main/assets+, it will be processed and the corresponding
+EcmaScript 5 file (also +.js+) created.
+
+To use the generated JavaScript files, don't forget to import the Traceur Runtime in your HTML file:
+
+----
+<script src="https://google.github.io/traceur-compiler/bin/traceur-runtime.js"></script>
+----
+
+
+
+
+
+
