@@ -24,7 +24,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wisdom-framework</groupId>
+    <parent>
+        <groupId>org.wisdom-framework</groupId>
+        <artifactId>wisdom-framework</artifactId>
+        <version>0.6.1</version>
+    </parent>
+
+
     <artifactId>wisdom-traceur-maven-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -40,6 +46,14 @@
         <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
         <plexusCompilerVersion>2.2</plexusCompilerVersion>
     </properties>
+
+    <scm>
+        <url>https://github.com/wisdom-framework/wisdom-traceur/</url>
+        <connection>scm:git:git@github.com:wisdom-framework/wisdom-traceur.git</connection>
+        <developerConnection>scm:git:git@github.com:wisdom-framework/wisdom-traceur.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
 
     <dependencies>
 
