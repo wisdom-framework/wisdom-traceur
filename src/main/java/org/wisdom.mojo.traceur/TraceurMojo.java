@@ -34,6 +34,7 @@ import org.wisdom.maven.node.NPM;
 import org.wisdom.maven.utils.WatcherUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,7 +48,7 @@ import java.util.regex.Pattern;
  * Traceur's goal is to inform the design of new JavaScript features which are only valuable if
  * they allow you to write better code . Traceur allows you to try out new and proposed language
  * features today, helping you say what you mean in your code while informing the standards process.
- * <p/>
+ * <p>
  * The Wisdom Traceur extension generates valid EcmaScript 5 (in other words, regular JavaScript) from
  * EcmaScript 6 by relying on Traceur. It supports the _watch_ mode, so every modification triggers
  * the file to be recompiled.
@@ -103,7 +104,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * Compiles all EcmaScripts(JavaScripts) files located in the internal and external asset
      * directories.
-     * <p/>
+     * <p>
      * This is the main Mojo entry point. The {@code execute} method is invoked by the regular Maven execution.
      *
      * @throws MojoExecutionException if a JavaScript file cannot be processed.
@@ -123,11 +124,15 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
         Collection<File> externals = WatcherUtils.getAllFilesFromDirectory
                 (getExternalAssetsDirectory(), ImmutableList.of("es6.js"));
 
-        compile(getInternalAssetOutputDirectory(), internals);
-        compile(getExternalAssetsOutputDirectory(), externals);
+        try {
+            compile(getInternalAssetOutputDirectory(), internals);
+            compile(getExternalAssetsOutputDirectory(), externals);
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 
-    private void compile(File dir, Collection<File> files) throws MojoExecutionException {
+    private void compile(File dir, Collection<File> files) throws MojoExecutionException, IOException {
         if (!files.isEmpty()) {
             File output = new File(dir, this.output);
             getLog().info("Compiling EcmaScript files : " + files + " to " + output
@@ -136,7 +141,19 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
             args.add("--out");
             args.add(output.getAbsolutePath());
             for (File file : files) {
-                args.add(file.getAbsolutePath());
+                // The input files have the .es6.js extension. We copy them and use the .js extension.
+                // Indeed, .es6.js extension make module import use name.es6 instead of just name.
+                File fileToCompile = null;
+                File filtered = getFilteredVersion(file);
+                if (filtered != null) {
+                    fileToCompile = new File(filtered.getParentFile(), file.getName().replace(".es6", ""));
+                    FileUtils.copyFile(filtered, fileToCompile);
+                } else {
+                    File out = getOutputFile(file);
+                    fileToCompile = new File(out.getParentFile(), file.getName().replace(".es6", ""));
+                    FileUtils.copyFile(file, fileToCompile);
+                }
+                args.add(fileToCompile.getAbsolutePath());
             }
 
             if (experimental) {
