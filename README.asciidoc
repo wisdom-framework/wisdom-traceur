@@ -31,7 +31,7 @@ Traceur support is a build-process extension. In the +plugins+ section of your a
 </plugin>
 ----
 
-The plugin generates a valid JavaScript 5 document for JavaScript files (ending with `.js`)
+The plugin generates a valid JavaScript 5 document for JavaScript files (ending with `.es6.js`)
 contained in the:
 
 1. src/main/resources/assets directory
@@ -53,20 +53,27 @@ However, to be used successfully, you need to disable the Google Closure compila
 </plugin>
 ----
 
+== Usage
 
-== Usages
-
-Using the plugin is very simple, just create +.js+ file using EcmaScript 6 in
-+src/main/resources/assets+ or +/src/main/assets+, it will be processed and the corresponding
-EcmaScript 5 file (also +.js+) created.
+Using the plugin is very simple, just create +.es6.js+ files using EcmaScript 6 in
++src/main/resources/assets+ or +/src/main/assets+, it will be processed and an aggregated
+EcmaScript 5 file is created. By default this file is named `your_artifactId.js`. You can change this name using the
+`<output>` parameter.
 
 To use the generated JavaScript files, don't forget to import the Traceur Runtime in your HTML file:
 
 ----
 <script src="https://google.github.io/traceur-compiler/bin/traceur-runtime.js"></script>
+<script src="/assets/your_artifactId.js"></script>
 ----
 
+== Parameters
 
+* `output` - the name of the aggregated file generated
+* `moduleStrategy` - the module strategy among `inline`, `amd`, `commonsjs`, `instantiate`, `register`. `inline` is
+used by default
+* `experimental` - enables or disables the experimental feature (enabled by default)
+* `version` - the traceur version (0.0.49 by default)
 
 
 
