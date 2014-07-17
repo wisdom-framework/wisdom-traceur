@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,9 @@ import org.wisdom.maven.node.NPM;
 import org.wisdom.maven.utils.WatcherUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +66,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * The extension of the input files.
      */
-    public static final String INPUT_EXTENSION = "js";
+    public static final String INPUT_EXTENSION = ".es6.js";
 
     /**
      * The name of the NPM.
@@ -83,6 +86,15 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     @Parameter(defaultValue = "0.0.49")
     protected String version;
 
+    @Parameter(defaultValue = "true")
+    protected boolean experimental;
+
+    @Parameter(defaultValue = "inline")
+    protected String moduleStrategy;
+
+    @Parameter(defaultValue = "${project.artifactId}.js")
+    protected String output;
+
     /**
      * The NPM object.
      */
@@ -101,16 +113,39 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
 
         npm = NPM.npm(this, NPM_NAME, version);
 
-        try {
-            // The getResources method locates all the assets files from "src/main/resources/assets" (internal
-            // assets) and "src/main/assets" (external assets) having on of the given extensions.
-            for (File f : getResources(ImmutableList.of("js"))) {
-                process(f);
-            }
-        } catch (WatchingException e) {
-            throw new MojoExecutionException("Error while processing a JavaScript file", e);
-        }
+        compile();
+    }
 
+    public void compile() throws MojoExecutionException {
+        Collection<File> internals = WatcherUtils.getAllFilesFromDirectory
+                (getInternalAssetsDirectory(), ImmutableList.of("es6.js"));
+
+        Collection<File> externals = WatcherUtils.getAllFilesFromDirectory
+                (getExternalAssetsDirectory(), ImmutableList.of("es6.js"));
+
+        compile(getInternalAssetOutputDirectory(), internals);
+        compile(getExternalAssetsOutputDirectory(), externals);
+    }
+
+    private void compile(File dir, Collection<File> files) throws MojoExecutionException {
+        if (!files.isEmpty()) {
+            File output = new File(dir, this.output);
+            getLog().info("Compiling EcmaScript files : " + files + " to " + output
+                    .getAbsolutePath());
+            List<String> args = new ArrayList<String>();
+            args.add("--out");
+            args.add(output.getAbsolutePath());
+            for (File file : files) {
+                args.add(file.getAbsolutePath());
+            }
+
+            if (experimental) {
+                args.add("--experimental");
+            }
+
+            args.add("--modules=" + moduleStrategy);
+            npm.execute("traceur", args.toArray(new String[args.size()]));
+        }
     }
 
     /**
@@ -123,21 +158,8 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
      * @throws WatchingException if a compilation error occurs.
      */
     public void process(File input) throws WatchingException {
-        // The file may have been filtered (copied to the output directory and placeholders have been filled with
-        // actual values. In this case, use the filtered version.
-        File filtered = getFilteredVersion(input);
-        if (filtered == null) {
-            // It was not copied.
-            getLog().warn("Cannot find the filtered version of " + input.getAbsolutePath() + ", " +
-                    "using source file.");
-            filtered = input;
-        }
-
-        // Call traceur.
-        File output = getOutputFile(input);
         try {
-            npm.execute("traceur", "--out", output.getAbsolutePath(), "--script",
-                    filtered.getAbsolutePath());
+            compile();
         } catch (MojoExecutionException e) {
             if (!Strings.isNullOrEmpty(npm.getLastErrorStream())) {
                 throw build(npm.getLastErrorStream(), input);
@@ -185,7 +207,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
      */
     @Override
     public boolean accept(File file) {
-        return WatcherUtils.hasExtension(file, ImmutableList.of(INPUT_EXTENSION));
+        return file.getName().endsWith(INPUT_EXTENSION);
     }
 
     /**
@@ -220,9 +242,8 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
      * @return true always.
      */
     @Override
-    public boolean fileDeleted(File file) {
-        File output = getOutputFile(file, OUTPUT_EXTENSION);
-        FileUtils.deleteQuietly(output);
+    public boolean fileDeleted(File file) throws WatchingException {
+        process(file);
         return true;
     }
 }
