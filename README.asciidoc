@@ -60,6 +60,16 @@ Using the plugin is very simple, just create +.es6.js+ files using EcmaScript 6 
 EcmaScript 5 file is created. By default this file is named `your_artifactId.js`. You can change this name using the
 `<output>` parameter.
 
+The input files have now the .es6.js extension, then .es6.js extension make module import use name.es6 instead of just name:
+
+----
+import Foo from './foo.es6';
+
+class Thing extends Foo {
+}
+export default Foo;
+----
+
 To use the generated JavaScript files, don't forget to import the Traceur Runtime in your HTML file:
 
 ----
