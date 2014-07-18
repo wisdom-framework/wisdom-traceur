@@ -22,6 +22,7 @@ package org.wisdom.mojo.traceur;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -48,7 +49,7 @@ import java.util.regex.Pattern;
  * Traceur's goal is to inform the design of new JavaScript features which are only valuable if
  * they allow you to write better code . Traceur allows you to try out new and proposed language
  * features today, helping you say what you mean in your code while informing the standards process.
- * <p>
+ * <p/>
  * The Wisdom Traceur extension generates valid EcmaScript 5 (in other words, regular JavaScript) from
  * EcmaScript 6 by relying on Traceur. It supports the _watch_ mode, so every modification triggers
  * the file to be recompiled.
@@ -67,7 +68,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * The extension of the input files.
      */
-    public static final String INPUT_EXTENSION = ".es6.js";
+    public static final String INPUT_EXTENSION = ".js";
 
     /**
      * The name of the NPM.
@@ -96,6 +97,9 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     @Parameter(defaultValue = "${project.artifactId}.js")
     protected String output;
 
+    @Parameter
+    protected String[] includes;
+
     /**
      * The NPM object.
      */
@@ -104,7 +108,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * Compiles all EcmaScripts(JavaScripts) files located in the internal and external asset
      * directories.
-     * <p>
+     * <p/>
      * This is the main Mojo entry point. The {@code execute} method is invoked by the regular Maven execution.
      *
      * @throws MojoExecutionException if a JavaScript file cannot be processed.
@@ -119,10 +123,10 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
 
     public void compile() throws MojoExecutionException {
         Collection<File> internals = WatcherUtils.getAllFilesFromDirectory
-                (getInternalAssetsDirectory(), ImmutableList.of("es6.js"));
+                (getInternalAssetsDirectory(), ImmutableList.of("js"));
 
         Collection<File> externals = WatcherUtils.getAllFilesFromDirectory
-                (getExternalAssetsDirectory(), ImmutableList.of("es6.js"));
+                (getExternalAssetsDirectory(), ImmutableList.of("js"));
 
         try {
             compile(getInternalAssetOutputDirectory(), internals);
@@ -133,29 +137,28 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     }
 
     private void compile(File dir, Collection<File> files) throws MojoExecutionException, IOException {
-        if (!files.isEmpty()) {
+        List<File> toCompile = new ArrayList<>();
+        for (File file : files) {
+            if (shouldBeCompiled(file)) {
+                File filtered = getFilteredVersion(file);
+                if (filtered != null) {
+                    toCompile.add(filtered);
+                } else {
+                    toCompile.add(file);
+                }
+            }
+        }
+
+        if (!toCompile.isEmpty()) {
             File output = new File(dir, this.output);
-            getLog().info("Compiling EcmaScript files : " + files + " to " + output
+            getLog().info("Compiling EcmaScript files : " + toCompile + " to " + output
                     .getAbsolutePath());
             List<String> args = new ArrayList<String>();
             args.add("--out");
             args.add(output.getAbsolutePath());
-            for (File file : files) {
-                // The input files have the .es6.js extension. We copy them and use the .js extension.
-                // Indeed, .es6.js extension make module import use name.es6 instead of just name.
-                File fileToCompile = null;
-                File filtered = getFilteredVersion(file);
-                if (filtered != null) {
-                    fileToCompile = new File(filtered.getParentFile(), file.getName().replace(".es6", ""));
-                    FileUtils.copyFile(filtered, fileToCompile);
-                } else {
-                    File out = getOutputFile(file);
-                    fileToCompile = new File(out.getParentFile(), file.getName().replace(".es6", ""));
-                    FileUtils.copyFile(file, fileToCompile);
-                }
-                args.add(fileToCompile.getAbsolutePath());
+            for (File file : toCompile) {
+                args.add(file.getAbsolutePath());
             }
-
             if (experimental) {
                 args.add("--experimental");
             }
@@ -163,6 +166,26 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
             args.add("--modules=" + moduleStrategy);
             npm.execute("traceur", args.toArray(new String[args.size()]));
         }
+    }
+
+    public boolean shouldBeCompiled(File file) {
+        if (includes != null) {
+            WildcardFileFilter filter = new WildcardFileFilter(includes);
+            if (filter.accept(file)) {
+                return true;
+            }
+        }
+        // It does not match the filter, we try the comment approach.
+
+        String content;
+        try {
+            content = FileUtils.readFileToString(file);
+        } catch (IOException e) {
+            getLog().error("Cannot read the content of " + file.getAbsolutePath(), e);
+            return false;
+        }
+        String lower = content.toLowerCase();
+        return lower.contains("!ecmascript6") || lower.contains("!es6");
     }
 
     /**

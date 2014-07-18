@@ -55,10 +55,51 @@ However, to be used successfully, you need to disable the Google Closure compila
 
 == Usage
 
-Using the plugin is very simple, just create +.es6.js+ files using EcmaScript 6 in
+Using the plugin is very simple, just create +.js+ files using EcmaScript 6 in
 +src/main/resources/assets+ or +/src/main/assets+, it will be processed and an aggregated
 EcmaScript 5 file is created. By default this file is named `your_artifactId.js`. You can change this name using the
 `<output>` parameter.
+
+To be compiled your file must either:
+
+* includes a comment with `!es6` or `!EcmaScript6`
+* being include in the `includes` parameter
+
+In the first case, your JavaScript file would be like:
+
+----
+//!ES6
+class Greeter {
+    sayHi(name = 'Anonymous') {
+        console.log(`Hi ${name}!`);
+    }
+}
+
+var greeter = new Greeter();
+greeter.sayHi();
+----
+
+In the second case, the configuration of the plugin would contain an `includes` parameter:
+
+----
+<plugin>
+    <groupId>org.wisdom-framework</groupId>
+    <artifactId>wisdom-traceur-maven-plugin</artifactId>
+    <version>${project.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>compile-es6</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <includes>
+            <include>Greet*.js</include>
+        </includes>
+    </configuration>
+</plugin>
+----
 
 To use the generated JavaScript files, don't forget to import the Traceur Runtime in your HTML file:
 
@@ -74,6 +115,8 @@ To use the generated JavaScript files, don't forget to import the Traceur Runtim
 used by default
 * `experimental` - enables or disables the experimental feature (enabled by default)
 * `version` - the traceur version (0.0.49 by default)
+* `includes`  - the set of included file (can use wildcards, and are checked against the file
+names).
 
 
 
