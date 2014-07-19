@@ -64,11 +64,6 @@ import java.util.regex.Pattern;
 public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants {
 
     /**
-     * The extension of output files.
-     */
-    public static final String OUTPUT_EXTENSION = "js";
-
-    /**
      * The extension of the input files.
      */
     public static final String INPUT_EXTENSION = ".js";
