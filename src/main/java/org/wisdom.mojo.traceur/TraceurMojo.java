@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  * the file to be recompiled.
  * <p>
  * Are automatically compiled the file containing a comment with {@code !es6} or {@code !ecmascript6},
- * and the file matching one of the {@code <includes></includes>} patterns.
+ * and the file matching one of the {@code includes} patterns.
  */
 @Mojo(name = "compile-es6", threadSafe = false,
         requiresDependencyResolution = ResolutionScope.COMPILE,
@@ -194,7 +194,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
      * Checks whether the given file should be compiled or not.
      *
      * @param file the file
-     * @return {@code true} if the file matches the wildcard filter ({@code <includes></includes>} parameter),
+     * @return {@code true} if the file matches the wildcard filter ({@code includes} parameter),
      * or if the file contains a comment with {@literal !ecmascript6} or {@literal !es6}.
      */
     public boolean shouldBeCompiled(File file) {
