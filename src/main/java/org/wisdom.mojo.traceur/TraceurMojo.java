@@ -49,10 +49,13 @@ import java.util.regex.Pattern;
  * Traceur's goal is to inform the design of new JavaScript features which are only valuable if
  * they allow you to write better code . Traceur allows you to try out new and proposed language
  * features today, helping you say what you mean in your code while informing the standards process.
- * <p/>
+ * <p>
  * The Wisdom Traceur extension generates valid EcmaScript 5 (in other words, regular JavaScript) from
  * EcmaScript 6 by relying on Traceur. It supports the _watch_ mode, so every modification triggers
  * the file to be recompiled.
+ * <p>
+ * Are automatically compiled the file containing a comment with {@code !es6} or {@code !ecmascript6},
+ * and the file matching one of the {@code <includes></includes>} patterns.
  */
 @Mojo(name = "compile-es6", threadSafe = false,
         requiresDependencyResolution = ResolutionScope.COMPILE,
@@ -88,15 +91,29 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     @Parameter(defaultValue = "0.0.49")
     protected String version;
 
+    /**
+     * Enables or disables the experimental flags.
+     */
     @Parameter(defaultValue = "true")
     protected boolean experimental;
 
+    /**
+     * Configures the module strategy.
+     */
     @Parameter(defaultValue = "inline")
     protected String moduleStrategy;
 
+    /**
+     * Configures the output files. All EcmaScript files are compiled to an unique file: this one.
+     */
     @Parameter(defaultValue = "${project.artifactId}.js")
     protected String output;
 
+    /**
+     * The set of includes (wildcard file name pattern), to detect whether or not the file must be compiled. By
+     * default the set of includes is empty and only files containing the {@code !es6} or {@code !ecmascript6}
+     * comments are compiled. The patterns configured here are matched against file name (and not path).
+     */
     @Parameter
     protected String[] includes;
 
@@ -108,7 +125,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * Compiles all EcmaScripts(JavaScripts) files located in the internal and external asset
      * directories.
-     * <p/>
+     * <p>
      * This is the main Mojo entry point. The {@code execute} method is invoked by the regular Maven execution.
      *
      * @throws MojoExecutionException if a JavaScript file cannot be processed.
@@ -121,6 +138,11 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
         compile();
     }
 
+    /**
+     * Compiles all eligible files from the internal and external assets.
+     *
+     * @throws MojoExecutionException if the compilation failed
+     */
     public void compile() throws MojoExecutionException {
         Collection<File> internals = WatcherUtils.getAllFilesFromDirectory
                 (getInternalAssetsDirectory(), ImmutableList.of("js"));
@@ -150,12 +172,12 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
         }
 
         if (!toCompile.isEmpty()) {
-            File output = new File(dir, this.output);
-            getLog().info("Compiling EcmaScript files : " + toCompile + " to " + output
+            File outputJS = new File(dir, this.output);
+            getLog().info("Compiling EcmaScript files : " + toCompile + " to " + outputJS
                     .getAbsolutePath());
             List<String> args = new ArrayList<String>();
             args.add("--out");
-            args.add(output.getAbsolutePath());
+            args.add(outputJS.getAbsolutePath());
             for (File file : toCompile) {
                 args.add(file.getAbsolutePath());
             }
@@ -168,6 +190,13 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
         }
     }
 
+    /**
+     * Checks whether the given file should be compiled or not.
+     *
+     * @param file the file
+     * @return {@code true} if the file matches the wildcard filter ({@code <includes></includes>} parameter),
+     * or if the file contains a comment with {@literal !ecmascript6} or {@literal !es6}.
+     */
     public boolean shouldBeCompiled(File file) {
         if (includes != null) {
             WildcardFileFilter filter = new WildcardFileFilter(includes);
@@ -223,7 +252,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
         String[] lines = message.split("\n");
         for (String l : lines) {
             if (!Strings.isNullOrEmpty(l)) {
-                message = l.trim();
+                message = l.trim();  //NOSONAR
                 break;
             }
         }
@@ -251,7 +280,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     }
 
     /**
-     * Creates a new file by calling the {@link #process(java.io.File)} method.
+     * Triggers the compilation.
      *
      * @param file is the file.
      * @return true always.
@@ -276,7 +305,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     }
 
     /**
-     * Deletes the output file of the given file.
+     * Triggers the recompilation.
      *
      * @param file the file
      * @return true always.
