@@ -1,0 +1,23 @@
+{
+    "name": "wisdom-traceur",
+    "version":"0.7-SNAPSHOT",
+    "description": "The Wisdom Traceur extension generates valid EcmaScript 5 (in other words, regular JavaScript) from EcmaScript 6 by relying on Traceur. It supports the watch mode, so every modification triggers the file to be recompiled.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wisdom-framework/wisdom-traceur"
+    },
+
+    "author": "The Wisdom Team",
+    "license": {
+            "type": "Apache",
+            "url": "https://github.com/wisdom-framework/wisdom-traceur/blob/master/LICENSE"
+        },
+    "homepage": "https://github.com/wisdom-framework/wisdom-traceur",
+    "keywords": [
+        "ecmascript 6",
+        "javascript generation",
+        "es5",
+        "es6"
+    ]
+}
+
