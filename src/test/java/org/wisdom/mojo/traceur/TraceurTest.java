@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class TraceurTest {
-    private static final String VERSION = "0.0.49";
+    private static final String VERSION = "0.0.58";
     File basedir = new File("target/workbench/project");
 
     @Before

@@ -83,7 +83,7 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * The most current release version of Traceur.
      */
-    @Parameter(defaultValue = "0.0.49")
+    @Parameter(defaultValue = "0.0.58")
     protected String version;
 
     /**

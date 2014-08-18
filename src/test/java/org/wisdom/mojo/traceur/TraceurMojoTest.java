@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TraceurMojoTest {
 
-    private static final String VERSION = "0.0.49";
+    private static final String VERSION = "0.0.58";
     File basedir = new File("target/workbench/project");
 
     @Before
