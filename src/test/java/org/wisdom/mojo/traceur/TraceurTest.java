@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class TraceurTest {
-    private static final String VERSION = "0.0.58";
+    private static final String VERSION = "0.0.87";
     File basedir = new File("target/workbench/project");
 
     @Before
@@ -49,9 +49,9 @@ public class TraceurTest {
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
         mojo.execute();
-        FileUtils.copyFile(new File("src/test/resources/dummy.js"), new File(basedir,
+        FileUtils.copyFile(new File("src/test/resources/dummy.es6.js"), new File(basedir,
                 "src/main/resources/assets/doc/dummy.js"));
-        FileUtils.copyFile(new File("src/test/resources/dummy.js"), new File(basedir,
+        FileUtils.copyFile(new File("src/test/resources/dummy.es6.js"), new File(basedir,
                 "src/main/assets/doc/dummy.js"));
         mojo.execute();
 
@@ -73,15 +73,15 @@ public class TraceurTest {
         mojo.execute();
 
         File source = new File(basedir,
-                "src/main/resources/assets/doc/erroneous.js");
-        FileUtils.copyFile(new File("src/test/resources/erroneous.js"), source);
+                "src/main/resources/assets/doc/erroneous.es6.js");
+        FileUtils.copyFile(new File("src/test/resources/erroneous.es6.js"), source);
 
         try {
             mojo.fileCreated(source);
             fail("Compilation error expected");
         } catch (WatchingException e) {
             // Excepted exception
-            assertThat(e.getFile().getName()).isEqualTo("erroneous.js");
+            assertThat(e.getFile().getName()).isEqualTo("erroneous.es6.js");
             assertThat(e.getLine()).isEqualTo(11);
             assertThat(e.getCharacter()).isGreaterThan(0);
             assertThat(e.getTitle()).contains("Compilation");
@@ -97,14 +97,14 @@ public class TraceurTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        mojo.includes = new String[]{"human*.js"};
+        mojo.includes = new String[]{"human*.es6.js"};
 
         // Copy the files that do not have the bang comment
 
-        FileUtils.copyFile(new File("src/test/resources/earth/human.js"), new File(basedir,
-                "src/main/resources/assets/earth/human.js"));
-        FileUtils.copyFile(new File("src/test/resources/earth/humans.js"), new File(basedir,
-                "src/main/resources/assets/earth/humans.js"));
+        FileUtils.copyFile(new File("src/test/resources/earth/human.es6.js"), new File(basedir,
+                "src/main/resources/assets/earth/human.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/earth/humans.es6.js"), new File(basedir,
+                "src/main/resources/assets/earth/humans.es6.js"));
 
         mojo.execute();
 
@@ -120,16 +120,16 @@ public class TraceurTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        mojo.includes = new String[]{"human*.js"};
+        mojo.includes = new String[]{"human*.es6.js"};
 
         // Copy the files that do not have the bang comment
 
-        FileUtils.copyFile(new File("src/test/resources/earth/human.js"), new File(basedir,
-                "src/main/resources/assets/earth/human.js"));
-        FileUtils.copyFile(new File("src/test/resources/earth/humans.js"), new File(basedir,
-                "src/main/resources/assets/earth/humans.js"));
-        FileUtils.copyFile(new File("src/test/resources/earth/dummy.js"), new File(basedir,
-                "src/main/resources/assets/earth/dummy.js"));
+        FileUtils.copyFile(new File("src/test/resources/earth/human.es6.js"), new File(basedir,
+                "src/main/resources/assets/earth/human.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/earth/humans.es6.js"), new File(basedir,
+                "src/main/resources/assets/earth/humans.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/earth/dummy.es6.js"), new File(basedir,
+                "src/main/resources/assets/earth/dummy.es6.js"));
 
         mojo.execute();
 

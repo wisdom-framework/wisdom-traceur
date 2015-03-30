@@ -76,14 +76,14 @@ public class TraceurMojo extends AbstractWisdomWatcherMojo implements Constants 
     /**
      * Regexp pattern to display Traceur compilation errors in a clean manner.
      */
-    public static final Pattern TRACEUR_COMPILATION_ERROR = Pattern.compile("\\[Error: (.*):" +
-            "([0-9]*):([0-9]*):(.*)");
+    public static final Pattern TRACEUR_COMPILATION_ERROR = Pattern.compile(
+            "\\[ '(.*):([0-9]*):([0-9]*): (.*)'.*");
     public static final String ERROR_TITLE = "EcmaScript 6 Compilation Error";
 
     /**
      * The most current release version of Traceur.
      */
-    @Parameter(defaultValue = "0.0.58")
+    @Parameter(defaultValue = "0.0.87")
     protected String version;
 
     /**

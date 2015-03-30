@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TraceurMojoTest {
 
-    private static final String VERSION = "0.0.58";
+    private static final String VERSION = "0.0.87";
     File basedir = new File("target/workbench/project");
 
     @Before
@@ -50,10 +50,10 @@ public class TraceurMojoTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/resources/assets/doc/hello.js"));
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/assets/doc/hello.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/resources/assets/doc/hello.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/assets/doc/hello.es6.js"));
         mojo.execute();
     }
     @Test
@@ -77,10 +77,10 @@ public class TraceurMojoTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/resources/assets/doc/hello.js"));
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/assets/doc/hello.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/resources/assets/doc/hello.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/assets/doc/hello.es6.js"));
         mojo.execute();
 
         final File internal = new File(mojo.getInternalAssetOutputDirectory(), "acme.js");
@@ -103,16 +103,16 @@ public class TraceurMojoTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/resources/assets/doc/hello.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/resources/assets/doc/hello.es6.js"));
         // Filtered version:
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "target/classes/assets/doc/hello.js"));
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "src/main/assets/doc/hello.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "target/classes/assets/doc/hello.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "src/main/assets/doc/hello.es6.js"));
         // Filtered version:
-        FileUtils.copyFile(new File("src/test/resources/hello.js"), new File(basedir,
-                "target/wisdom/assets/doc/hello.js"));
+        FileUtils.copyFile(new File("src/test/resources/hello.es6.js"), new File(basedir,
+                "target/wisdom/assets/doc/hello.es6.js"));
 
         mojo.execute();
 
@@ -137,7 +137,7 @@ public class TraceurMojoTest {
         mojo.moduleStrategy = "inline";
         mojo.execute();
 
-        assertThat(mojo.accept(new File("hello.js"))).isTrue();
+        assertThat(mojo.accept(new File("hello.es6.js"))).isTrue();
         assertThat(mojo.accept(new File("helloes6.jsp"))).isFalse();
         assertThat(mojo.accept(new File("hello.es6js"))).isFalse();
         assertThat(mojo.accept(new File("hello.es6"))).isFalse();
@@ -152,10 +152,10 @@ public class TraceurMojoTest {
         mojo.buildDirectory = new File(mojo.basedir, "target");
         mojo.output = "acme.js";
         mojo.moduleStrategy = "inline";
-        FileUtils.copyFile(new File("src/test/resources/humans.js"), new File(basedir,
-                "src/main/resources/assets/doc/humans.js"));
-        FileUtils.copyFile(new File("src/test/resources/human.js"), new File(basedir,
-                "src/main/resources/assets/doc/human.js"));
+        FileUtils.copyFile(new File("src/test/resources/humans.es6.js"), new File(basedir,
+                "src/main/resources/assets/doc/humans.es6.js"));
+        FileUtils.copyFile(new File("src/test/resources/human.es6.js"), new File(basedir,
+                "src/main/resources/assets/doc/human.es6.js"));
         mojo.execute();
 
         final File internal = new File(mojo.getInternalAssetOutputDirectory(), "acme.js");
