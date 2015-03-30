@@ -101,11 +101,10 @@ In the second case, the configuration of the plugin would contain an `includes` 
 </plugin>
 ----
 
-The input files have now the `.es6.js` extension, then `.es6.js` extension make module import use `name.es6` instead of
-just `name`:
+To import another `es6` file, use the following syntax
 
 ----
-import Foo from './foo.es6';
+import Foo from './foo.es6.js';
 
 class Thing extends Foo {
 }
