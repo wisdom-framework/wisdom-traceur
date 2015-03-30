@@ -1,4 +1,4 @@
-import Human from './human';
+import Human from './human.es6.js';
 
 class Humans {
 
