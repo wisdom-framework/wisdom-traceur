@@ -101,6 +101,18 @@ In the second case, the configuration of the plugin would contain an `includes` 
 </plugin>
 ----
 
+The input files have now the `.es6.js` extension, then `.es6.js` extension make module import use `name.es6` instead of
+just `name`:
+
+----
+import Foo from './foo.es6';
+
+class Thing extends Foo {
+}
+export default Foo;
+----
+
+
 To use the generated JavaScript files, don't forget to import the Traceur Runtime in your HTML file:
 
 ----
